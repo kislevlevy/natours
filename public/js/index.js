@@ -15,6 +15,7 @@ const passwordForm = document.querySelector('.form-user-settings');
 const map = document.getElementById('map');
 const logoutBtn = document.querySelector('.nav_el--logout');
 const bookBtn = document.querySelector('#book-tour');
+const alertMsg = document.querySelector('body').dataset.alertMsg;
 
 // Login form:
 if (loginForm)
@@ -70,3 +71,5 @@ if (bookBtn) {
     bookTour(tourId);
   });
 }
+
+if (alertMsg) showAlert('success', alertMsg, 20);

@@ -5,12 +5,15 @@ const {
   getLoginForm,
   getAccount,
   getMyBookings,
+  alerts,
 } = require('../controllers/viewController');
 const { isLoggedIn, protect } = require('../controllers/authController');
 
 const router = express.Router();
 
 // Router:
+router.use(alerts);
+
 router.get('/me', protect, getAccount);
 router.get('/my-bookings', protect, getMyBookings);
 
