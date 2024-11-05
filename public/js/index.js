@@ -15,7 +15,7 @@ const passwordForm = document.querySelector('.form-user-settings');
 const map = document.getElementById('map');
 const logoutBtn = document.querySelector('.nav_el--logout');
 const bookBtn = document.querySelector('#book-tour');
-const alertMsg = document.querySelector('body').dataset.alertMsg;
+const alertMsg = document.querySelector('body').dataset.alert;
 
 // Login form:
 if (loginForm)
