@@ -36,7 +36,8 @@ const reviewSchema = new mongoose.Schema(
   },
 );
 
-///////////////////////////////////////////////////////////// Indexes:
+////////////////////////////////////////////////
+// Indexes:
 reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
 
 // Middleware:

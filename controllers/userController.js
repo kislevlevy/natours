@@ -7,7 +7,7 @@ const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const { deleteOne, updateOne, getOne, getMany } = require('./handlerFactory');
 
-///////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////
 // File upload:
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -31,7 +31,7 @@ exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
   return next();
 });
 
-///////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////
 const filterBody = function (body, ...fields) {
   const obj = {};
   fields.forEach((field) => {

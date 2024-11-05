@@ -23,6 +23,9 @@ const errorController = require('./controllers/errorController');
 // App init:
 const app = express();
 
+// Enable proxies for application:
+app.enable('trust proxy');
+
 // Pug views initiation:
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));

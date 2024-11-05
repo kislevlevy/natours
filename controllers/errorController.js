@@ -1,7 +1,7 @@
 // Modules imports:
 const AppError = require('../utils/appError');
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////
 // Helpers functions:
 // Development:
 const sendErrorDev = (err, req, res) => {
@@ -79,7 +79,7 @@ const handleJWTError = () => new AppError('Invalid token, please login again', 4
 const handleJWTErrorExpiers = () =>
   new AppError('Token has been expierd, login again!', 401);
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////
 // Generate new Error function:
 module.exports = (err, req, res, next) => {
   // Assing status and status code:

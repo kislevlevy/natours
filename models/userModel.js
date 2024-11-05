@@ -4,7 +4,7 @@ const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
-/////////////////////////////////////////////////////////////
+////////////////////////////////////////////////
 // DB Schema
 const userSchema = new mongoose.Schema({
   name: {
@@ -63,7 +63,7 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-///////////////////////////////////////////////////////////
+////////////////////////////////////////////////
 // Middleware:
 // Password hashing:
 userSchema.pre('save', async function (next) {
@@ -90,7 +90,7 @@ userSchema.pre(/^find/, function (next) {
   next();
 });
 
-/////////////////////////////////////////////////////////////
+////////////////////////////////////////////////
 // Methods:
 userSchema.methods.checkPassword = async function (pass, hash) {
   return await bcrypt.compare(pass, hash);
@@ -120,7 +120,7 @@ userSchema.methods.createPasswordResetToken = function () {
   return resetToken;
 };
 
-/////////////////////////////////////////////////////////////
+////////////////////////////////////////////////
 // Create model:
 const User = mongoose.model('User', userSchema);
 

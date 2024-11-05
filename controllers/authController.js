@@ -8,20 +8,21 @@ const AppError = require('../utils/appError');
 const Email = require('../utils/email');
 const User = require('../models/userModel');
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////
 // JWT token maker:
-const createSendToken = (user, statusCode, res) => {
+const createSendToken = (req, res, statusCode) => {
+  const { user } = req;
+
   // Create token:
   const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
-  const cookieOpt = {
+  res.cookie('jwt', token, {
     expires: new Date(Date.now() + process.env.JWT_COOKIE_EXP * 86400000),
     httpOnly: true,
-  };
-  if (process.env.NODE_ENV === 'production') cookieOpt.secure = true;
-  res.cookie('jwt', token, cookieOpt);
+    secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+  });
   user.password = undefined;
 
   // Send token to client:
@@ -32,18 +33,18 @@ const createSendToken = (user, statusCode, res) => {
   });
 };
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////
 // ASYNC Functions:
 exports.signup = catchAsync(async (req, res, next) => {
   // Create user in db:
-  const newUser = await User.create(req.body);
+  req.user = await User.create(req.body);
 
   // Send email:
   const url = `${req.protocol}://${req.get('host')}/me`;
-  await new Email(newUser, url).welcome();
+  await new Email(req.user, url).welcome();
 
   // Send token:
-  createSendToken(newUser, 201, res);
+  createSendToken(req, res, 201);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -60,9 +61,10 @@ exports.login = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ email }).select('+password');
   if (!user || !(await user.checkPassword(password, user.password)))
     return next(new AppError('Email or passwors is incorect', 401));
+  req.user = user;
 
   // Send token:
-  createSendToken(user, 200, res);
+  createSendToken(req, res, 200);
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -160,9 +162,10 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   user.password = password;
   user.passwordConfirm = passwordConfirm;
   await user.save();
+  req.user = user;
 
   // Send token:
-  createSendToken(user, 200, res);
+  createSendToken(req, res, 200);
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
@@ -180,9 +183,10 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   user.password = password;
   user.passwordConfirm = passwordConfirm;
   await user.save();
+  req.user = user;
 
   // Send token:
-  createSendToken(user, 200, res);
+  createSendToken(req, res, 200);
 });
 
 // Only for rendering pages = no error
