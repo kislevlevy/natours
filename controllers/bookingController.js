@@ -3,6 +3,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET);
 const catchAsync = require('../utils/catchAsync');
 // const AppError = require('../utils/appError');
 const Tour = require('../models/tourModel');
+const User = require('../models/userModel');
 const Booking = require('../models/bookingModel');
 const {
   createOne,
@@ -20,7 +21,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   // create stripe session:
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
-    success_url: `${req.protocol}://${req.get('host')}/?tour=${tourId}&user=${req.user.id}&price=${tour.price}`,
+    success_url: `${req.protocol}://${req.get('host')}/my-bookings`,
     cancel_url: `${req.protocol}://${req.get('host')}/tour/${tour.slug}`,
     payment_method_types: ['card'],
     customer_email: req.user.email,
@@ -48,7 +49,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.createBookingCheckout = catchAsync(async (req, res, next) => {
+/* exports.createBookingCheckout = catchAsync(async (req, res, next) => {
   const { tour, user, price } = req.query;
   if (!tour || !user || !price) return next();
 
@@ -58,6 +59,37 @@ exports.createBookingCheckout = catchAsync(async (req, res, next) => {
   // api response:
   const redirectUrl = req.originalUrl.split('?');
   res.redirect(redirectUrl[0]);
+}); */
+
+exports.webhookCheckout = catchAsync(async (req, res, next) => {
+  const signature = req.headers['stripe-signature'];
+  let e;
+  try {
+    e = stripe.webhooks.constructEvent(
+      req.body,
+      signature,
+      process.env.STRIPE_WEBHOOK,
+    );
+  } catch (err) {
+    return res.status(400).send(`Webhook error - ${err.message}`);
+  }
+
+  if (e.type === 'checkout.session.completed') {
+    const {
+      client_reference_id: tour,
+      customer_email: userEmail,
+      line_items: [booking],
+    } = e.data.object;
+
+    // find user in DB:
+    const user = await User.findOne({ email: userEmail })._id;
+    const price = booking.unit_amount / 100;
+
+    // Create booking:
+    await Booking.create({ tour, user, price });
+  }
+
+  res.status(200).json({ recived: true });
 });
 
 exports.createBooking = createOne(Booking);

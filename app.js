@@ -9,6 +9,7 @@ const hpp = require('hpp');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
+const cors = require('cors');
 
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
@@ -18,6 +19,7 @@ const bookingRouter = require('./routes/bookingRoutes');
 
 const AppError = require('./utils/appError');
 const errorController = require('./controllers/errorController');
+const { webhookCheckout } = require('./controllers/bookingController');
 
 ////////////////////////////////////////////////
 // App init:
@@ -29,6 +31,10 @@ app.enable('trust proxy');
 // Pug views initiation:
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
+
+// CORS:
+app.use(cors());
+app.options('*', cors());
 
 // Static public folder:
 app.use(express.static(path.join(__dirname, 'public')));
@@ -49,7 +55,13 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
-// body parcer:
+app.post(
+  '/webhook-checkout',
+  express.raw({ type: 'application/json' }),
+  webhookCheckout,
+);
+
+// body parser:
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
@@ -74,10 +86,10 @@ app.use(
 app.use(compression());
 
 // Test middleware:
-app.use((req, res, next) => {
-  req.requestTime = new Date().toISOString();
-  next();
-});
+// app.use((req, res, next) => {
+//   req.requestTime = new Date().toISOString();
+//   next();
+// });
 
 ////////////////////////////////////////////////
 // App router:

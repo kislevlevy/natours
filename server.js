@@ -22,7 +22,7 @@ const app = require('./app');
 // App start:
 const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, () => {
-  console.log(`App running on port - ${PORT}\nhttp://localhost:${PORT}`);
+  console.log(`App running on port - ${PORT}\nhttps://0.0.0.0:${PORT}`);
 });
 
 ////////////////////////////////////////////////
